@@ -1,0 +1,20 @@
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm install -g pnpm && pnpm install
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Copy .env.example file
+        run: find . -type f -name ".env.example" -exec sh -c 'cp "$1" "${1%.*}"' _ {} \;
+
+      - name: Lint
+        run: pnpm lint
