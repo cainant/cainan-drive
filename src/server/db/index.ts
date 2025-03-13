@@ -1,19 +1,22 @@
-import { createClient, type Client } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+import { drizzle } from "drizzle-orm/singlestore";
+import { createPool, Pool } from "mysql2";
 
 import { env } from "~/env";
-import * as schema from "./schema";
 
-/**
- * Cache the database connection in development. This avoids creating a new connection on every HMR
- * update.
- */
 const globalForDb = globalThis as unknown as {
-  client: Client | undefined;
+  conn: Pool | undefined;
 };
 
-export const client =
-  globalForDb.client ?? createClient({ url: env.DATABASE_URL });
-if (env.NODE_ENV !== "production") globalForDb.client = client;
+const conn = 
+  globalForDb.conn ??
+  createPool({
+    host: env.SINGLESTORE_HOST,
+    port: parseInt(env.SINGLESTORE_HOST),
+    user: env.SINGLESTORE_USER,
+    password: env.SINGLESTORE_PASS,
+    database: env.SINGLESTORE_DB_NAME,
+    ssl: {},
+    maxIdle: 0
+});
 
-export const db = drizzle(client, { schema });
+const db = drizzle({ client: connection });
