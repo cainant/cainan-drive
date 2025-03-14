@@ -1,23 +1,24 @@
-import { db } from "~/server/db"
-import { files as filesSchema, folders as foldersSchema} from "~/server/db/schema"
 import DriveContents from "../../drive-contents"
-import { eq } from "drizzle-orm"
-
+import { QUERIES } from "~/server/db/queries"
 
 export default async function GoogleDriveClone(props: { params: Promise<{ folderId: string }> }) {
   const params = await props.params
-  
+
   const parsedFolderId = parseInt(params.folderId)
   if (isNaN(parsedFolderId)) {
     return <div>Invalid folder ID</div>
   }
 
-  const files = await db.select().from(filesSchema)
-  const folders = await db
-    .select()
-    .from(foldersSchema)
-    .where(eq(foldersSchema.parent, parsedFolderId))
+  const begin = new Date()
 
-  return <DriveContents files={files} folders={folders} />
+  const [files, folders, parents] = await Promise.all([
+    QUERIES.getFiles(parsedFolderId), 
+    QUERIES.getFolders(parsedFolderId), 
+    QUERIES.getAllParentsForFolder(parsedFolderId)
+  ])
+
+  const end = new Date()
+  console.log(`Time taken to fetch data: ${end.getTime() - begin.getTime()}ms`)
+
+  return <DriveContents files={files} folders={folders} parents={parents} />
 }
-
