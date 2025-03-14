@@ -31,13 +31,13 @@ export const QUERIES = {
     return db
       .select()
       .from(foldersSchema)
-      .where(eq(filesSchema.parent, folderId));
+      .where(eq(foldersSchema.parent, folderId));
   },
 
   getFiles: function (folderId: number) {
     return db
       .select()
       .from(filesSchema)
-      .where(eq(foldersSchema.parent, folderId));
+      .where(eq(filesSchema .parent, folderId));
   },
 };
