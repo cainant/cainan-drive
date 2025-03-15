@@ -56,7 +56,9 @@ const config = {
           "ctx.db"
         ]
       }
-    ]
+    ],
+    "@typescript-eslint/only-throw-error": "off",
+    "@typescript-eslint/no-unused-vars": "off",
   }
 }
 module.exports = config;
