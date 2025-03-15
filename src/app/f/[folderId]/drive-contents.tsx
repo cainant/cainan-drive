@@ -40,6 +40,13 @@ export default function DriveContents(props: {
               </div>
             ))}
           </div>
+          <UploadButton
+          endpoint="defaultUploader"
+          input={{ folderId: props.currentFolderId }}
+          onClientUploadComplete={() => {
+            navigate.refresh();
+          }} 
+          />
           <div>
             <SignedOut>
               <SignInButton />
@@ -47,7 +54,7 @@ export default function DriveContents(props: {
             <SignedIn>
               <UserButton />
             </SignedIn>
-          </div>
+          </div>  
         </div>
         <div className="bg-gray-800 rounded-lg shadow-xl">
           <div className="px-6 py-4 border-b border-gray-700">
@@ -67,12 +74,6 @@ export default function DriveContents(props: {
             ))}
           </ul>
         </div>
-        <UploadButton
-          endpoint="defaultUploader"
-          input={{ folderId: props.currentFolderId }}
-          onClientUploadComplete={() => {
-            navigate.refresh();
-          }} />
       </div>
     </div>
   )
