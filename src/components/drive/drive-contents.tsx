@@ -26,7 +26,7 @@ export default function DriveContents(props: {
               href={'/f/1'}
               className="text-gray-300 hover:text-white mr-2"
             >
-              My Drive
+              Meu Drive
             </Link>
             {props.parents.map((folder, index) => (
               <div key={folder.id} className="flex items-center">
@@ -40,28 +40,35 @@ export default function DriveContents(props: {
               </div>
             ))}
           </div>
-          <UploadButton
-          endpoint="defaultUploader"
-          input={{ folderId: props.currentFolderId }}
-          onClientUploadComplete={() => {
-            navigate.refresh();
-          }} 
-          />
           <div>
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </div>  
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '15px' }}>
+              <UploadButton
+                endpoint="defaultUploader"
+                input={{ folderId: props.currentFolderId }}
+                onClientUploadComplete={
+                  () => {
+                    navigate.refresh();
+                  }
+                }
+                appearance={{
+                  allowedContent: "hidden",
+                }}
+              />
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
+          </div>
         </div>
         <div className="bg-gray-800 rounded-lg shadow-xl">
           <div className="px-6 py-4 border-b border-gray-700">
             <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-400">
               <div className="col-span-6">Name</div>
-              <div className="col-span-2">Size</div>
-              <div className="col-span-3">Type</div>
+              <div className="col-span-2">Type</div>
+              <div className="col-span-3">Size</div>
               <div className="col-span-1"></div>
             </div>
           </div>
