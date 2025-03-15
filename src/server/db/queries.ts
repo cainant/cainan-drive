@@ -53,6 +53,7 @@ export const QUERIES = {
 
     return folder[0]
   },
+  
   getRootFolderForUser: async function (userId: string) {
     const folder = await db
       .select()
@@ -72,6 +73,7 @@ export const MUTATIONS = {
       size: number;
       url: string;
       parent: number;
+      key: string;
     };
     userId: string;
   }) {
@@ -80,6 +82,7 @@ export const MUTATIONS = {
       ownerId: input.userId,
     });
   },
+
   onboardUser: async function (userId: string) {
     const rootFolder = await db
       .insert(foldersSchema)

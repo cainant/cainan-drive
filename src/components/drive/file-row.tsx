@@ -2,7 +2,7 @@ import { FileIcon, Folder as FolderIcon, Trash2Icon } from "lucide-react"
 import Link from "next/link"
 import { Button } from "~/components/ui/button"
 import { bytesToSize } from "~/lib/utils"
-import { deleteFile } from "~/server/actions"
+import { deleteFile, deleteFolder } from "~/server/actions"
 import type { DB_FileType, files_table, folders_table } from "~/server/db/schema"
 
 export function FileRow(props: { file: DB_FileType }) {
@@ -16,7 +16,6 @@ export function FileRow(props: { file: DB_FileType }) {
                         {file.name}
                     </a>
                 </div>
-                {/* TODO */}
                 <div className="col-span-2 text-gray-400">{file.name.split('.')[1]}</div>
                 <div className="col-span-3 text-gray-400">{bytesToSize(file.size)}</div>
                 <div className="col-span-1 text-gray-400">
@@ -47,7 +46,7 @@ export function FolderRow(props: { folder: typeof folders_table.$inferSelect }) 
                 <div className="col-span-2 text-gray-400">Folder</div>
                 <div className="col-span-3 text-gray-400">--</div>
                 <div className="col-span-1 text-gray-400">
-                    <Button variant="ghost" onClick={() => { return {/*TODO*/} }}>
+                    <Button variant="ghost" onClick={() => deleteFolder(folder.id)}>
                         <Trash2Icon size={20} />
                     </Button></div>
             </div>

@@ -26,7 +26,7 @@ export default function DriveContents(props: {
               href={'/f/1'}
               className="text-gray-300 hover:text-white mr-2"
             >
-              Meu Drive
+              My Drive
             </Link>
             {props.parents.map((folder, index) => (
               <div key={folder.id} className="flex items-center">
@@ -73,12 +73,20 @@ export default function DriveContents(props: {
             </div>
           </div>
           <ul>
-            {props.folders.map((folder) => (
-              <FolderRow key={folder.id} folder={folder} />
-            ))}
-            {props.files.map((file) => (
-              <FileRow key={file.id} file={file} />
-            ))}
+            {props.folders.length === 0 && props.files.length === 0 ? (
+              <div className="flex justify-center items-center col-span-12 text-gray-500 min-h-[45px]">
+                Your drive is empty
+              </div>
+            ) : (
+              <>
+                {props.folders.map((folder) => (
+                  <FolderRow key={folder.id} folder={folder} />
+                ))}
+                {props.files.map((file) => (
+                  <FileRow key={file.id} file={file} />
+                ))}
+              </>
+            )}
           </ul>
         </div>
       </div>
