@@ -20,5 +20,5 @@ export default async function GoogleDriveClone(props: { params: Promise<{ folder
   const end = new Date()
   console.log(`Time taken to fetch data: ${end.getTime() - begin.getTime()}ms`)
 
-  return <DriveContents files={files} folders={folders} parents={parents} />
+  return <DriveContents files={files} folders={folders} parents={parents} currentFolderId={parsedFolderId}/>
 }

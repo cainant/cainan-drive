@@ -1,4 +1,4 @@
-import "server-only";
+// import "server-only";
 
 import {
   int,
@@ -6,23 +6,30 @@ import {
   index,
   singlestoreTableCreator,
   bigint,
+  timestamp,
 } from "drizzle-orm/singlestore-core";
 
-const createTable = singlestoreTableCreator(
-  (name) => `drive-tutorial_${name}`,
-);
+const createTable = singlestoreTableCreator((name) => `drive_tutorial_${name}`);
 
 export const files_table = createTable(
   "files_table",
   {
-    id: bigint("id", {mode: "number", unsigned: true}).primaryKey().autoincrement(),
+    id: bigint("id", { mode: "number", unsigned: true })
+      .primaryKey()
+      .autoincrement(),
+    ownerId: text("owner_id").notNull(),
     name: text("name").notNull(),
     size: int("size").notNull(),
     url: text("url").notNull(),
-    parent: bigint("parent", {mode: "number", unsigned: true}).notNull(),
+    parent: bigint("parent", { mode: "number", unsigned: true }).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (t) => {
-    return [index("parent_index").on(t.parent)];
+    return [
+      index("parent_index").on(t.parent),
+      index("owner_id_index").on(t.ownerId),
+    ];
   },
 );
 
@@ -31,12 +38,20 @@ export type DB_FileType = typeof files_table.$inferSelect;
 export const folders_table = createTable(
   "folders_table",
   {
-    id: bigint("id", {mode: "number", unsigned: true}).primaryKey().autoincrement(),
+    id: bigint("id", { mode: "number", unsigned: true })
+      .primaryKey()
+      .autoincrement(),
+    ownerId: text("owner_id").notNull(),
     name: text("name").notNull(),
-    parent: bigint("parent", {mode: "number", unsigned: true}),
+    parent: bigint("parent", { mode: "number", unsigned: true }),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt").notNull().defaultNow().onUpdateNow(),
   },
   (t) => {
-    return [index("parent_index").on(t.parent)];
+    return [
+      index("parent_index").on(t.parent),
+      index("owner_id_index").on(t.ownerId),
+    ];
   },
 );
 

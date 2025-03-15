@@ -25,6 +25,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@uploadthing/react": "^7.3.0",
+    "babel-plugin-react-compiler": "19.0.0-beta-bafa41b-20250307",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "0.40.0",

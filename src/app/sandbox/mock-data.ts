@@ -14,7 +14,6 @@ export type Folder = {
   parent: string | null;
 };
 export const mockFolders: Folder[] = [
-  { id: "root", name: "root", type: "folder", parent: null },
   { id: "1", name: "Documents", type: "folder", parent: "root" },
   { id: "2", name: "Images", type: "folder", parent: "root" },
   { id: "3", name: "Work", type: "folder", parent: "root" },
