@@ -28,7 +28,9 @@ export default async function DrivePage() {
                     return redirect(`/f/${rootFolderId}`);
                 }}
             >
-                <Button>Create new Drive</Button>
+                <Button className="bg-gray-500 text-white hover:bg-gray-700">
+                    Create new Drive
+                </Button>
             </form>
         );
     }
