@@ -14,5 +14,5 @@ export default {
 
     ssl: {}
   },
-  tablesFilter: ["drive-tutorial_*"],
+  // tablesFilter: ["drive_tutorial_*"],
 } satisfies Config;

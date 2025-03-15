@@ -1,9 +1,18 @@
-import { mockFiles, mockFolders } from '~/lib/mock-data';
+import { auth } from '@clerk/nextjs/server';
+import { mockFolders } from './mock-data';
 import { db } from '~/server/db';
-import { files_table, folders_table } from '~/server/db/schema';
+import { folders_table } from '~/server/db/schema';
+import { eq } from 'drizzle-orm';
 
 
-export default function SandboxPage() {
+export default async function SandboxPage() {
+    const user = await auth();
+    if (!user.userId) {
+        throw new Error("Unauthorized");
+    }
+    const folders = await db.select().from(folders_table).where(eq(folders_table.ownerId, user.userId));
+    console.log(folders);
+
     return (
         <div className="flex flex-col gap-4">
             Seed Function
@@ -11,20 +20,24 @@ export default function SandboxPage() {
                 action={async () => {
                     "use server";
 
-                    const folderInsert = await db.insert(folders_table).values(mockFolders.map((folder, index) => ({
+                    const user = await auth();
+                    if (!user.userId) {
+                        throw new Error("Unauthorized");
+                    }
+
+                    const rootFolder = await db.insert(folders_table).values({
+                        name: "root",
+                        parent: null,
+                        ownerId: user.userId,
+                    }).$returningId();
+
+                    const insertableFolders = mockFolders.map((folder) => ({
                         name: folder.name,
-                        parent: index !== 0 ? 1 : null,
-                        id: index + 1
-                    })));
-                    console.log(folderInsert)
-                    const fileInsert = await db.insert(files_table).values(mockFiles.map((file, index) => ({
-                        name: file.name,
-                        size: parseInt(file.size),
-                        url: file.url,
-                        parent: (index % 3) + 1,
-                        id: index + 1
-                    })));
-                    console.log(fileInsert)
+                        parent: rootFolder[0]!.id,
+                        ownerId: user.userId,
+                    }));
+                    await db.insert(folders_table).values(insertableFolders);
+
                 }}
             >
                 <button className="btn" type="submit">Seed</button>

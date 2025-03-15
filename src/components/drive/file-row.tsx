@@ -1,8 +1,11 @@
-import { FileIcon, Folder as FolderIcon } from "lucide-react"
+import { FileIcon, Folder as FolderIcon, Trash2Icon } from "lucide-react"
 import Link from "next/link"
-import type { files_table, folders_table } from "~/server/db/schema"
+import { Button } from "~/components/ui/button"
+import { bytesToSize } from "~/lib/utils"
+import { deleteFile, deleteFolder } from "~/server/actions"
+import type { DB_FileType, files_table, folders_table } from "~/server/db/schema"
 
-export function FileRow(props: { file: typeof files_table.$inferSelect }) {
+export function FileRow(props: { file: DB_FileType }) {
     const { file } = props
     return (
         <li key={file.id} className="px-6 py-4 border-b border-gray-700 hover:bg-gray-750">
@@ -13,8 +16,13 @@ export function FileRow(props: { file: typeof files_table.$inferSelect }) {
                         {file.name}
                     </a>
                 </div>
-                <div className="col-span-3 text-gray-400">{"file"}</div>
-                <div className="col-span-3 text-gray-400">{file.size}</div>
+                <div className="col-span-2 text-gray-400">{file.name.split('.')[1]}</div>
+                <div className="col-span-3 text-gray-400">{bytesToSize(file.size)}</div>
+                <div className="col-span-1 text-gray-400">
+                    <Button variant="ghost" onClick={() => deleteFile(file.id)}>
+                        <Trash2Icon size={20} />
+                    </Button>
+                </div>
             </div>
         </li>
     )
@@ -35,8 +43,12 @@ export function FolderRow(props: { folder: typeof folders_table.$inferSelect }) 
                     </Link>
 
                 </div>
-                <div className="col-span-3 text-gray-400">Folder</div>
+                <div className="col-span-2 text-gray-400">Folder</div>
                 <div className="col-span-3 text-gray-400">--</div>
+                <div className="col-span-1 text-gray-400">
+                    <Button variant="ghost" onClick={() => deleteFolder(folder.id)}>
+                        <Trash2Icon size={20} />
+                    </Button></div>
             </div>
         </li>
     )
