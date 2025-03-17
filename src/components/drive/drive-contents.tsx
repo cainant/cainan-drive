@@ -7,6 +7,7 @@ import Link from "next/link"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { UploadButton } from "~/components/uploadthing"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function DriveContents(props: {
   files: (typeof files_table.$inferSelect)[],
@@ -16,6 +17,14 @@ export default function DriveContents(props: {
   currentFolderId: number
 }) {
   const navigate = useRouter();
+  const [selectedItems, setSelectedItems] = useState<{ [key: string]: boolean }>({});
+
+  const handleCheckboxChange = (id: number, isChecked: boolean) => {
+    setSelectedItems((prev) => ({
+      ...prev,
+      [id]: isChecked,
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
@@ -66,7 +75,8 @@ export default function DriveContents(props: {
         <div className="bg-gray-800 rounded-lg shadow-xl">
           <div className="px-6 py-4 border-b border-gray-700">
             <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-400">
-              <div className="col-span-6">Name</div>
+              <div className="col-span-1"></div>
+              <div className="col-span-5">Name</div>
               <div className="col-span-2">Type</div>
               <div className="col-span-3">Size</div>
               <div className="col-span-1"></div>
@@ -80,10 +90,10 @@ export default function DriveContents(props: {
             ) : (
               <>
                 {props.folders.map((folder) => (
-                  <FolderRow key={folder.id} folder={folder} />
+                  <FolderRow key={folder.id} folder={folder} isChecked={!!selectedItems[folder.id]} onCheckBoxChange={handleCheckboxChange} />
                 ))}
                 {props.files.map((file) => (
-                  <FileRow key={file.id} file={file} />
+                  <FileRow key={file.id} file={file} isChecked={!!selectedItems[file.id]} onCheckBoxChange={handleCheckboxChange} />
                 ))}
               </>
             )}
@@ -93,4 +103,3 @@ export default function DriveContents(props: {
     </div>
   )
 }
-

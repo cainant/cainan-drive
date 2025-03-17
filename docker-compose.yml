@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: docker-next
+    ports:
+      - '3000:3000'
+      - 49153:49153
+    volumes:
+      - .:/app
+      - /app/node_modules

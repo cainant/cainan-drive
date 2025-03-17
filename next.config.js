@@ -12,7 +12,9 @@ const config = {
 
   experimental: {
     reactCompiler: true,
+    useCache: true
   },
+  
 };
 
 export default config;
