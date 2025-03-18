@@ -9,6 +9,10 @@ import { cookies } from "next/headers";
 
 const utapi = new UTApi();
 
+export interface Items {
+  [key: string]: { isChecked: boolean; isFile: boolean };
+}
+
 export async function deleteFile(fileId: number) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
@@ -73,6 +77,46 @@ export async function deleteFolder(folderId: number) {
   }
 
   await deleteFolderRecursively(folderId);
+
+  const c = await cookies();
+  c.set("force-refresh", "true");
+
+  return { success: true };
+}
+
+export async function deleteItems(items: Items) {
+  const session = await auth();
+  if (!session.userId) return { error: "Unauthorized" };
+
+  for (const [id, { isChecked, isFile }] of Object.entries(items)) {
+    if (isChecked) {
+      if (isFile) {
+        await deleteFile(Number(id));
+      } else {
+        await deleteFolder(Number(id));
+      }
+    }
+  }
+
+  const c = await cookies();
+  c.set("force-refresh", "true");
+
+  return { success: true };
+}
+
+export async function createFolder(parentId: number) {
+  console.log(parentId)
+  const session = await auth();
+  if (!session.userId) return { error: "Unauthorized" };
+
+  const folder = await db
+    .insert(folders_table)
+    .values({
+      name: "New Folder",
+      ownerId: session.userId,
+      parent: parentId,
+    })
+    .execute();
 
   const c = await cookies();
   c.set("force-refresh", "true");

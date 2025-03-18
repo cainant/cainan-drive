@@ -1,28 +1,31 @@
 "use client"
 
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, FolderPlusIcon, Trash2Icon } from "lucide-react"
 import { FileRow, FolderRow } from "./file-row"
-import type { files_table, folders_table } from "~/server/db/schema"
+import type { DB_FileType, DB_FolderType, files_table, folders_table } from "~/server/db/schema"
 import Link from "next/link"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { UploadButton } from "~/components/uploadthing"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { Button } from "../ui/button"
+import { createFolder, deleteItems, Items } from "~/server/actions"
+import { Bounce, ToastContainer, toast } from 'react-toastify';
 
 export default function DriveContents(props: {
-  files: (typeof files_table.$inferSelect)[],
-  folders: (typeof folders_table.$inferSelect)[],
-  parents: (typeof folders_table.$inferSelect)[],
+  files: (DB_FileType)[],
+  folders: (DB_FolderType)[],
+  parents: (DB_FolderType)[],
 
   currentFolderId: number
 }) {
   const navigate = useRouter();
-  const [selectedItems, setSelectedItems] = useState<{ [key: string]: boolean }>({});
+  const [selectedItems, setSelectedItems] = useState<Items>({});
 
-  const handleCheckboxChange = (id: number, isChecked: boolean) => {
+  const handleCheckboxChange = (id: number, isChecked: boolean, isFile: boolean) => {
     setSelectedItems((prev) => ({
       ...prev,
-      [id]: isChecked,
+      [id]: { isChecked, isFile },
     }));
   };
 
@@ -37,7 +40,7 @@ export default function DriveContents(props: {
             >
               My Drive
             </Link>
-            {props.parents.map((folder, index) => (
+            {props.parents.map((folder) => (
               <div key={folder.id} className="flex items-center">
                 <ChevronRight className="mx-2 text-gray-500" size={16} />
                 <Link
@@ -79,7 +82,25 @@ export default function DriveContents(props: {
               <div className="col-span-5">Name</div>
               <div className="col-span-2">Type</div>
               <div className="col-span-3">Size</div>
-              <div className="col-span-1"></div>
+              <div className="col-span-1 text-gray-400">
+                <div className="flex justify-end gap-2">
+                  <Button size={'sm'} variant="ghost" className="h-5 w-5" onClick={() => { createFolder(props.parents.at(-1)!.id) }}>
+                    <FolderPlusIcon />
+                  </Button>
+                  <Button size={'sm'} variant="ghost" className="h-5 w-5" onClick={() => {
+                    toast.promise(
+                      deleteItems(selectedItems),
+                      {
+                        pending: 'Deleting...',
+                        success: 'Deleted!',
+                        error: 'No items selected!'
+                      }
+                    )
+                  }}>
+                    <Trash2Icon />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
           <ul>
@@ -90,16 +111,25 @@ export default function DriveContents(props: {
             ) : (
               <>
                 {props.folders.map((folder) => (
-                  <FolderRow key={folder.id} folder={folder} isChecked={!!selectedItems[folder.id]} onCheckBoxChange={handleCheckboxChange} />
+                  <FolderRow key={folder.id} folder={folder} isChecked={!!selectedItems[folder.id]?.isChecked} onCheckBoxChange={handleCheckboxChange} />
                 ))}
                 {props.files.map((file) => (
-                  <FileRow key={file.id} file={file} isChecked={!!selectedItems[file.id]} onCheckBoxChange={handleCheckboxChange} />
+                  <FileRow key={file.id} file={file} isChecked={!!selectedItems[file.id]?.isChecked} onCheckBoxChange={handleCheckboxChange} />
                 ))}
               </>
             )}
           </ul>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={1200}
+        newestOnTop={false}
+        theme="dark"
+        transition={Bounce}
+        pauseOnHover={false}
+        hideProgressBar={true}
+      />
     </div>
   )
 }
