@@ -12,7 +12,7 @@ import { Bounce, ToastContainer, toast } from "react-toastify";
 import "primereact/resources/primereact.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import RenameDialog from "./rename-dialog";
-import { Item } from "~/server/db/schema";
+import type { Item } from "~/server/db/schema";
 import { useRecoilState } from "recoil";
 import { selectedItemsState } from "~/lib/states";
 
@@ -96,8 +96,8 @@ export default function DriveContents(props: {
                     size={"sm"}
                     variant="ghost"
                     className="h-5 w-5"
-                    onClick={() => {
-                      createFolder(props.parents.at(-1)!.id);
+                    onClick={async () => {
+                      await createFolder(props.parents.at(-1)!.id);
                     }}
                   >
                     <FolderPlusIcon />
@@ -106,8 +106,8 @@ export default function DriveContents(props: {
                     size={"sm"}
                     variant="ghost"
                     className="h-5 w-5"
-                    onClick={() => {
-                      toast.promise(deleteItems(selectedItems), {
+                    onClick={async () => {
+                      await toast.promise(deleteItems(selectedItems), {
                         pending: "Deleting...",
                         success: "Deleted!",
                         error: "No items selected!",

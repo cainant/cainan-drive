@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
-import { files_table, folders_table, Item } from "./db/schema";
+import { files_table, folders_table, type Item } from "./db/schema";
 import { and, eq } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 import { cookies } from "next/headers";
@@ -28,7 +28,7 @@ async function deleteFile(fileId: number) {
 
   await db.delete(files_table).where(eq(files_table.id, fileId));
 
-  const c = await cookies();
+  const c = cookies();
   c.set("force-refresh", "true");
 
   return { success: true };
@@ -59,7 +59,7 @@ async function deleteFolder(folderId: number) {
       .where(eq(folders_table.parent, folderId));
 
     for (const subfolder of subfolders) {
-      await deleteFolderRecursively(subfolder.id!);
+      await deleteFolderRecursively(subfolder.id);
     }
 
     const files = await db
@@ -74,7 +74,7 @@ async function deleteFolder(folderId: number) {
 
   await deleteFolderRecursively(folderId);
 
-  const c = await cookies();
+  const c = cookies();
   c.set("force-refresh", "true");
 
   return { success: true };
@@ -97,14 +97,14 @@ async function renameFile(fileId: number, newName: string) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
-  const file = await db
+  await db
     .update(files_table)
     .set({ name: newName })
     .where(
       and(eq(files_table.id, fileId), eq(files_table.ownerId, session.userId)),
     );
 
-  const c = await cookies();
+  const c = cookies();
   c.set("force-refresh", "true");
 
   return { success: true };
@@ -114,7 +114,7 @@ async function renameFolder(folderId: number, newName: string) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
-  const folder = await db
+  await db
     .update(folders_table)
     .set({ name: newName })
     .where(
@@ -124,7 +124,7 @@ async function renameFolder(folderId: number, newName: string) {
       ),
     );
 
-  const c = await cookies();
+  const c = cookies();
   c.set("force-refresh", "true");
 
   return { success: true };
@@ -142,7 +142,7 @@ export async function createFolder(parentId: number) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
-  const folder = await db
+  await db
     .insert(folders_table)
     .values({
       name: "New Folder",
@@ -151,7 +151,7 @@ export async function createFolder(parentId: number) {
     })
     .execute();
 
-  const c = await cookies();
+  const c = cookies();
   c.set("force-refresh", "true");
 
   return { success: true };

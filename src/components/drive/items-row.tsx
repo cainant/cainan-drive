@@ -4,7 +4,7 @@ import { bytesToSize } from "~/lib/utils";
 import { Button } from "../ui/button";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { dialogState, selectedItemsState } from "~/lib/states";
-import { Item } from "~/server/db/schema";
+import type { Item } from "~/server/db/schema";
 
 type RowProps = {
   item: Item;
@@ -13,7 +13,7 @@ type RowProps = {
 
 export function FileRow(props: RowProps) {
   const { item, onCheckBoxChange } = props;
-  const [_, setDialog] = useRecoilState(dialogState);
+  const [, setDialog] = useRecoilState(dialogState);
   const selectedItems = useRecoilValue(selectedItemsState);
   return (
     <li
@@ -69,7 +69,7 @@ export function FileRow(props: RowProps) {
 
 export function FolderRow(props: RowProps) {
   const { item, onCheckBoxChange } = props;
-  const [_, setDialog] = useRecoilState(dialogState);
+  const [, setDialog] = useRecoilState(dialogState);
   const selectedItems = useRecoilValue(selectedItemsState);
   return (
     <li

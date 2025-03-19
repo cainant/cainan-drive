@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { Item } from "~/server/db/schema";
+import type { Item } from "~/server/db/schema";
 
 export const dialogState = atom<{ open: boolean; text: string; item: Item }>({
   key: "dialog",
