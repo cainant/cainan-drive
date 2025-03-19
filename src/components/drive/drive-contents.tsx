@@ -1,28 +1,35 @@
-"use client"
+"use client";
 
-import { ChevronRight, FolderPlusIcon, Trash2Icon } from "lucide-react"
-import { FileRow, FolderRow } from "./file-row"
-import type { DB_FileType, DB_FolderType, files_table, folders_table } from "~/server/db/schema"
-import Link from "next/link"
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
-import { UploadButton } from "~/components/uploadthing"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { Button } from "../ui/button"
-import { createFolder, deleteItems, Items } from "~/server/actions"
-import { Bounce, ToastContainer, toast } from 'react-toastify';
+import { ChevronRight, FolderPlusIcon, Trash2Icon } from "lucide-react";
+import { FileRow, FolderRow } from "./file-row";
+import type { DB_FileType, DB_FolderType } from "~/server/db/schema";
+import Link from "next/link";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { UploadButton } from "~/components/uploadthing";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import { createFolder, deleteItems, CheckedItems } from "~/server/actions";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import "primereact/resources/primereact.css";
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import RenameDialog from "./rename-dialog";
 
 export default function DriveContents(props: {
-  files: (DB_FileType)[],
-  folders: (DB_FolderType)[],
-  parents: (DB_FolderType)[],
+  files: DB_FileType[];
+  folders: DB_FolderType[];
+  parents: DB_FolderType[];
 
-  currentFolderId: number
+  currentFolderId: number;
 }) {
   const navigate = useRouter();
-  const [selectedItems, setSelectedItems] = useState<Items>({});
+  const [selectedItems, setSelectedItems] = useState<CheckedItems>({});
 
-  const handleCheckboxChange = (id: number, isChecked: boolean, isFile: boolean) => {
+  const handleCheckboxChange = (
+    id: number,
+    isChecked: boolean,
+    isFile: boolean,
+  ) => {
     setSelectedItems((prev) => ({
       ...prev,
       [id]: { isChecked, isFile },
@@ -30,14 +37,11 @@ export default function DriveContents(props: {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-gray-900 p-8 text-gray-100">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center">
-            <Link
-              href={'/f/1'}
-              className="text-gray-300 hover:text-white mr-2"
-            >
+            <Link href={"/f/1"} className="mr-2 text-gray-300 hover:text-white">
               My Drive
             </Link>
             {props.parents.map((folder) => (
@@ -53,15 +57,20 @@ export default function DriveContents(props: {
             ))}
           </div>
           <div>
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '15px' }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "15px",
+              }}
+            >
               <UploadButton
                 endpoint="defaultUploader"
                 input={{ folderId: props.currentFolderId }}
-                onClientUploadComplete={
-                  () => {
-                    navigate.refresh();
-                  }
-                }
+                onClientUploadComplete={() => {
+                  navigate.refresh();
+                }}
                 appearance={{
                   allowedContent: "hidden",
                 }}
@@ -75,8 +84,8 @@ export default function DriveContents(props: {
             </div>
           </div>
         </div>
-        <div className="bg-gray-800 rounded-lg shadow-xl">
-          <div className="px-6 py-4 border-b border-gray-700">
+        <div className="rounded-lg bg-gray-800 shadow-xl">
+          <div className="border-b border-gray-700 px-6 py-4">
             <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-400">
               <div className="col-span-1"></div>
               <div className="col-span-5">Name</div>
@@ -84,19 +93,28 @@ export default function DriveContents(props: {
               <div className="col-span-3">Size</div>
               <div className="col-span-1 text-gray-400">
                 <div className="flex justify-end gap-2">
-                  <Button size={'sm'} variant="ghost" className="h-5 w-5" onClick={() => { createFolder(props.parents.at(-1)!.id) }}>
+                  <Button
+                    size={"sm"}
+                    variant="ghost"
+                    className="h-5 w-5"
+                    onClick={() => {
+                      createFolder(props.parents.at(-1)!.id);
+                    }}
+                  >
                     <FolderPlusIcon />
                   </Button>
-                  <Button size={'sm'} variant="ghost" className="h-5 w-5" onClick={() => {
-                    toast.promise(
-                      deleteItems(selectedItems),
-                      {
-                        pending: 'Deleting...',
-                        success: 'Deleted!',
-                        error: 'No items selected!'
-                      }
-                    )
-                  }}>
+                  <Button
+                    size={"sm"}
+                    variant="ghost"
+                    className="h-5 w-5"
+                    onClick={() => {
+                      toast.promise(deleteItems(selectedItems), {
+                        pending: "Deleting...",
+                        success: "Deleted!",
+                        error: "No items selected!",
+                      });
+                    }}
+                  >
                     <Trash2Icon />
                   </Button>
                 </div>
@@ -105,16 +123,26 @@ export default function DriveContents(props: {
           </div>
           <ul>
             {props.folders.length === 0 && props.files.length === 0 ? (
-              <div className="flex justify-center items-center col-span-12 text-gray-500 min-h-[45px]">
+              <div className="col-span-12 flex min-h-[45px] items-center justify-center text-gray-500">
                 Your drive is empty
               </div>
             ) : (
               <>
                 {props.folders.map((folder) => (
-                  <FolderRow key={folder.id} folder={folder} isChecked={!!selectedItems[folder.id]?.isChecked} onCheckBoxChange={handleCheckboxChange} />
+                  <FolderRow
+                    key={folder.id}
+                    folder={folder}
+                    isChecked={!!selectedItems[folder.id]?.isChecked}
+                    onCheckBoxChange={handleCheckboxChange}
+                  />
                 ))}
                 {props.files.map((file) => (
-                  <FileRow key={file.id} file={file} isChecked={!!selectedItems[file.id]?.isChecked} onCheckBoxChange={handleCheckboxChange} />
+                  <FileRow
+                    key={file.id}
+                    file={file}
+                    isChecked={!!selectedItems[file.id]?.isChecked}
+                    onCheckBoxChange={handleCheckboxChange}
+                  />
                 ))}
               </>
             )}
@@ -130,6 +158,7 @@ export default function DriveContents(props: {
         pauseOnHover={false}
         hideProgressBar={true}
       />
+      <RenameDialog />
     </div>
-  )
+  );
 }

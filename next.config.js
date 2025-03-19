@@ -7,14 +7,8 @@ const config = {
   },
 
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
-
-  experimental: {
-    reactCompiler: true,
-    useCache: true
-  },
-  
 };
 
 export default config;

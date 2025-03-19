@@ -12,7 +12,7 @@ export default {
     password: env.SINGLESTORE_PASS,
     database: env.SINGLESTORE_DB_NAME,
 
-    ssl: {}
+    ssl: {},
   },
   // tablesFilter: ["drive_tutorial_*"],
 } satisfies Config;

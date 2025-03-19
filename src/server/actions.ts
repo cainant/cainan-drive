@@ -9,7 +9,7 @@ import { cookies } from "next/headers";
 
 const utapi = new UTApi();
 
-export interface Items {
+export interface CheckedItems {
   [key: string]: { isChecked: boolean; isFile: boolean };
 }
 
@@ -84,19 +84,31 @@ export async function deleteFolder(folderId: number) {
   return { success: true };
 }
 
-export async function deleteItems(items: Items) {
+export async function deleteItems(items: CheckedItems) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
   for (const [id, { isChecked, isFile }] of Object.entries(items)) {
     if (isChecked) {
       if (isFile) {
-        await deleteFile(Number(id));
+        return await deleteFile(Number(id));
       } else {
-        await deleteFolder(Number(id));
+        return await deleteFolder(Number(id));
       }
     }
   }
+}
+
+export async function renameFile(fileId: number, newName: string) {
+  const session = await auth();
+  if (!session.userId) return { error: "Unauthorized" };
+
+  const file = await db
+    .update(files_table)
+    .set({ name: newName })
+    .where(
+      and(eq(files_table.id, fileId), eq(files_table.ownerId, session.userId)),
+    );
 
   const c = await cookies();
   c.set("force-refresh", "true");
@@ -104,8 +116,34 @@ export async function deleteItems(items: Items) {
   return { success: true };
 }
 
+export async function renameFolder(folderId: number, newName: string) {
+  const session = await auth();
+  if (!session.userId) return { error: "Unauthorized" };
+
+  const folder = await db
+    .update(folders_table)
+    .set({ name: newName })
+    .where(
+      and(eq(folders_table.id, folderId), eq(folders_table.ownerId, session.userId)),
+    );
+
+  const c = await cookies();
+  c.set("force-refresh", "true");
+
+  return { success: true };
+}
+
+export async function renameItem(itemId: number, newName: string, isFile: boolean) {
+  console.log(itemId, newName, isFile);
+  if (isFile) {
+    return await renameFile(itemId, newName);
+  } else {
+    return await renameFolder(itemId, newName);
+  }
+}
+
 export async function createFolder(parentId: number) {
-  console.log(parentId)
+  console.log(parentId);
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 

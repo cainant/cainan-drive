@@ -1,24 +1,33 @@
-import DriveContents from "../../../components/drive/drive-contents"
-import { QUERIES } from "~/server/db/queries"
+import DriveContents from "../../../components/drive/drive-contents";
+import { QUERIES } from "~/server/db/queries";
 
-export default async function GoogleDriveClone(props: { params: Promise<{ folderId: string }> }) {
-  const params = await props.params
+export default async function GoogleDriveClone(props: {
+  params: Promise<{ folderId: string }>;
+}) {
+  const params = await props.params;
 
-  const parsedFolderId = parseInt(params.folderId)
+  const parsedFolderId = parseInt(params.folderId);
   if (isNaN(parsedFolderId)) {
-    return <div>Invalid folder ID</div>
+    return <div>Invalid folder ID</div>;
   }
 
-  const begin = new Date()
+  const begin = new Date();
 
   const [files, folders, parents] = await Promise.all([
-    QUERIES.getFiles(parsedFolderId), 
-    QUERIES.getFolders(parsedFolderId), 
-    QUERIES.getAllParentsForFolder(parsedFolderId)
-  ])
+    QUERIES.getFiles(parsedFolderId),
+    QUERIES.getFolders(parsedFolderId),
+    QUERIES.getAllParentsForFolder(parsedFolderId),
+  ]);
 
-  const end = new Date()
-  console.log(`Time taken to fetch data: ${end.getTime() - begin.getTime()}ms`)
+  const end = new Date();
+  console.log(`Time taken to fetch data: ${end.getTime() - begin.getTime()}ms`);
 
-  return <DriveContents files={files} folders={folders} parents={parents} currentFolderId={parsedFolderId}/>
+  return (
+    <DriveContents
+      files={files}
+      folders={folders}
+      parents={parents}
+      currentFolderId={parsedFolderId}
+    />
+  );
 }

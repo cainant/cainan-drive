@@ -33,7 +33,7 @@ export const QUERIES = {
       .select()
       .from(foldersSchema)
       .where(eq(foldersSchema.parent, folderId))
-      .orderBy(asc(foldersSchema.name));;
+      .orderBy(asc(foldersSchema.name));
   },
 
   getFiles: function (folderId: number) {
@@ -49,11 +49,11 @@ export const QUERIES = {
       .select()
       .from(foldersSchema)
       .where(eq(foldersSchema.id, folderId))
-      .orderBy(asc(foldersSchema.name));;
+      .orderBy(asc(foldersSchema.name));
 
-    return folder[0]
+    return folder[0];
   },
-  
+
   getRootFolderForUser: async function (userId: string) {
     const folder = await db
       .select()
@@ -63,7 +63,6 @@ export const QUERIES = {
       );
     return folder[0];
   },
-
 };
 
 export const MUTATIONS = {
