@@ -9,6 +9,13 @@ import {
   timestamp,
 } from "drizzle-orm/singlestore-core";
 
+export type Item = {
+  id: number;
+  name: string;
+  size?: number;
+  url?: string;
+};
+
 const createTable = singlestoreTableCreator((name) => `drive_tutorial_${name}`);
 
 export const files_table = createTable(

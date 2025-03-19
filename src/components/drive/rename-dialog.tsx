@@ -1,5 +1,4 @@
 import { Dialog } from "primereact/dialog";
-import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { dialogState } from "~/lib/states";
 import { Button } from "../ui/button";
@@ -42,7 +41,7 @@ export default function RenameDialog() {
           <div className="flex items-center justify-center gap-2">
             <Button
               onClick={async (e) => {
-                await renameItem(dialog.itemId, dialog.text, dialog.isFile);
+                await renameItem(dialog.item, dialog.text);
                 hide(e);
               }}
               variant="secondary"

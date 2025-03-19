@@ -2,18 +2,14 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
-import { files_table, folders_table } from "./db/schema";
+import { files_table, folders_table, Item } from "./db/schema";
 import { and, eq } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 import { cookies } from "next/headers";
 
 const utapi = new UTApi();
 
-export interface CheckedItems {
-  [key: string]: { isChecked: boolean; isFile: boolean };
-}
-
-export async function deleteFile(fileId: number) {
+async function deleteFile(fileId: number) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
@@ -38,7 +34,7 @@ export async function deleteFile(fileId: number) {
   return { success: true };
 }
 
-export async function deleteFolder(folderId: number) {
+async function deleteFolder(folderId: number) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
@@ -84,22 +80,20 @@ export async function deleteFolder(folderId: number) {
   return { success: true };
 }
 
-export async function deleteItems(items: CheckedItems) {
+export async function deleteItems(items: Item[]) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
-  for (const [id, { isChecked, isFile }] of Object.entries(items)) {
-    if (isChecked) {
-      if (isFile) {
-        return await deleteFile(Number(id));
-      } else {
-        return await deleteFolder(Number(id));
-      }
+  for (const item of items) {
+    if (isFile(item)) {
+      return await deleteFile(Number(item.id));
+    } else {
+      return await deleteFolder(Number(item.id));
     }
   }
 }
 
-export async function renameFile(fileId: number, newName: string) {
+async function renameFile(fileId: number, newName: string) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
@@ -116,7 +110,7 @@ export async function renameFile(fileId: number, newName: string) {
   return { success: true };
 }
 
-export async function renameFolder(folderId: number, newName: string) {
+async function renameFolder(folderId: number, newName: string) {
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
@@ -124,7 +118,10 @@ export async function renameFolder(folderId: number, newName: string) {
     .update(folders_table)
     .set({ name: newName })
     .where(
-      and(eq(folders_table.id, folderId), eq(folders_table.ownerId, session.userId)),
+      and(
+        eq(folders_table.id, folderId),
+        eq(folders_table.ownerId, session.userId),
+      ),
     );
 
   const c = await cookies();
@@ -133,17 +130,15 @@ export async function renameFolder(folderId: number, newName: string) {
   return { success: true };
 }
 
-export async function renameItem(itemId: number, newName: string, isFile: boolean) {
-  console.log(itemId, newName, isFile);
-  if (isFile) {
-    return await renameFile(itemId, newName);
+export async function renameItem(item: Item, newName: string) {
+  if (isFile(item)) {
+    return await renameFile(Number(item.id), newName);
   } else {
-    return await renameFolder(itemId, newName);
+    return await renameFolder(Number(item.id), newName);
   }
 }
 
 export async function createFolder(parentId: number) {
-  console.log(parentId);
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 
@@ -161,3 +156,7 @@ export async function createFolder(parentId: number) {
 
   return { success: true };
 }
+
+const isFile = (item: Item) => {
+  return "key" in item;
+};

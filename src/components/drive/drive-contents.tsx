@@ -1,39 +1,38 @@
 "use client";
 
 import { ChevronRight, FolderPlusIcon, Trash2Icon } from "lucide-react";
-import { FileRow, FolderRow } from "./file-row";
-import type { DB_FileType, DB_FolderType } from "~/server/db/schema";
+import { FileRow, FolderRow } from "./items-row";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { UploadButton } from "~/components/uploadthing";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Button } from "../ui/button";
-import { createFolder, deleteItems, CheckedItems } from "~/server/actions";
+import { createFolder, deleteItems } from "~/server/actions";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import "primereact/resources/primereact.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import RenameDialog from "./rename-dialog";
+import { Item } from "~/server/db/schema";
+import { useRecoilState } from "recoil";
+import { selectedItemsState } from "~/lib/states";
 
 export default function DriveContents(props: {
-  files: DB_FileType[];
-  folders: DB_FolderType[];
-  parents: DB_FolderType[];
-
+  files: Required<Item>[];
+  folders: Item[];
+  parents: Item[];
   currentFolderId: number;
 }) {
   const navigate = useRouter();
-  const [selectedItems, setSelectedItems] = useState<CheckedItems>({});
+  const [selectedItems, setSelectedItems] = useRecoilState(selectedItemsState);
 
-  const handleCheckboxChange = (
-    id: number,
-    isChecked: boolean,
-    isFile: boolean,
-  ) => {
-    setSelectedItems((prev) => ({
-      ...prev,
-      [id]: { isChecked, isFile },
-    }));
+  const handleCheckboxChange = (item: Item, isChecked: boolean) => {
+    setSelectedItems((prev) => {
+      if (isChecked) {
+        return [...prev, item];
+      } else {
+        return prev.filter((i) => i.id !== item.id);
+      }
+    });
   };
 
   return (
@@ -131,16 +130,14 @@ export default function DriveContents(props: {
                 {props.folders.map((folder) => (
                   <FolderRow
                     key={folder.id}
-                    folder={folder}
-                    isChecked={!!selectedItems[folder.id]?.isChecked}
+                    item={folder}
                     onCheckBoxChange={handleCheckboxChange}
                   />
                 ))}
                 {props.files.map((file) => (
                   <FileRow
                     key={file.id}
-                    file={file}
-                    isChecked={!!selectedItems[file.id]?.isChecked}
+                    item={file}
                     onCheckBoxChange={handleCheckboxChange}
                   />
                 ))}
