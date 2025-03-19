@@ -81,6 +81,10 @@ async function deleteFolder(folderId: number) {
 }
 
 export async function deleteItems(items: Item[]) {
+  console.log(items.length);
+  if (items.length === 0) {
+    throw new Error("No items selected!");
+  }
   const session = await auth();
   if (!session.userId) return { error: "Unauthorized" };
 

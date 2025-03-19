@@ -4,7 +4,7 @@ import { ChevronRight, FolderPlusIcon, Trash2Icon } from "lucide-react";
 import { FileRow, FolderRow } from "./items-row";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { UploadButton } from "~/components/uploadthing";
+import { UploadButton } from "~/lib/uploadthing";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { createFolder, deleteItems } from "~/server/actions";
@@ -67,8 +67,13 @@ export default function DriveContents(props: {
               <UploadButton
                 endpoint="defaultUploader"
                 input={{ folderId: props.currentFolderId }}
-                onClientUploadComplete={() => {
+                onClientUploadComplete={(e) => {
+                  console.log(e)
                   navigate.refresh();
+                }}
+                onUploadError={(e) => {
+                  console.log(e)
+                  toast.error('File type not allowed.');
                 }}
                 appearance={{
                   allowedContent: "hidden",
