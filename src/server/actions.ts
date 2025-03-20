@@ -81,7 +81,6 @@ async function deleteFolder(folderId: number) {
 }
 
 export async function deleteItems(items: Item[]) {
-  console.log(items.length);
   if (items.length === 0) {
     throw new Error("No items selected!");
   }
@@ -90,11 +89,13 @@ export async function deleteItems(items: Item[]) {
 
   for (const item of items) {
     if (isFile(item)) {
-      return await deleteFile(Number(item.id));
+      await deleteFile(Number(item.id));
     } else {
-      return await deleteFolder(Number(item.id));
+      await deleteFolder(Number(item.id));
     }
   }
+
+  return { success: true };
 }
 
 async function renameFile(fileId: number, newName: string) {

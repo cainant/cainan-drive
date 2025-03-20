@@ -116,6 +116,9 @@ export default function DriveContents(props: {
                         pending: "Deleting...",
                         success: "Deleted!",
                         error: "No items selected!",
+                      })
+                      .then(() => {
+                        setSelectedItems([]);
                       });
                     }}
                   >
